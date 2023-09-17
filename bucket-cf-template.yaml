@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: S3 Bucket for Lambda Code
+
+Resources:
+  LambdaS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "healthequip-s3bucket-${AWS::Region}"
+
+Outputs:
+  S3BucketName:
+    Description: "S3 Bucket Name"
+    Value: !Ref LambdaS3Bucket
+    Export:
+      Name: S3BucketName
+  S3BucketArn:
+    Description: "S3 Bucket Arn"
+    Value: !Ref LambdaS3Bucket.Arn
+    Export:
+      Name: S3BucketArn
