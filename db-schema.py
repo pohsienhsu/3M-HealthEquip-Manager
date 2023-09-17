@@ -13,6 +13,33 @@ db_name = os.environ["RDS_DB_NAME"]
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+sql_script = """
+-- Create the Equipment table
+CREATE TABLE Equipment (
+    equipId INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    status VARCHAR(50),
+    location VARCHAR(100)
+);
+
+-- Create the Location table
+CREATE TABLE Location (
+    locationId INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255)
+);
+
+-- Create the Status table
+CREATE TABLE Status (
+    statusID INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255)
+);
+
+-- Add any additional tables or constraints as needed
+"""
+
 # Connect to the RDS MySQL instance
 try:
     conn = pymysql.connect(
