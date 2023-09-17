@@ -15,6 +15,6 @@ Outputs:
       Name: S3BucketName
   S3BucketArn:
     Description: "S3 Bucket Arn"
-    Value: !Ref LambdaS3Bucket.Arn
+    Value: !GetAtt LambdaS3Bucket.Arn
     Export:
       Name: S3BucketArn

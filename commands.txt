@@ -1,0 +1,39 @@
+# Creating CF Stack
+
+# RDS CF Stack 
+aws cloudformation create-stack \
+--stack-name HealthEquipDBStack \
+--template-body file://templates/rds-cf-template.yaml
+
+# Bucket CF Stack (S3)
+aws cloudformation create-stack \
+--stack-name HealthEquipBucketStack \
+--template-body file://templates/bucket-cf-template.yaml
+
+# Lambda CF Stack
+aws cloudformation create-stack \
+--stack-name HealthEquipLambdaStack \
+--template-body file://templates/lambda-cf-template.yaml \
+--capabilities CAPABILITY_NAMED_IAM
+
+================================================================
+
+# Updating CF Stack
+
+# RDS CF Stack
+aws cloudformation update-stack \
+--stack-name HealthEquipDBStack \
+--template-body file://templates/rds-cf-template.yaml
+
+# Bucket CF Stack
+aws cloudformation update-stack \
+--stack-name HealthEquipBucketStack \
+--template-body file://templates/bucket-cf-template.yaml
+
+# Lambda CF Stack
+aws cloudformation update-stack \
+--stack-name HealthEquipLambdaStack \
+--template-body file://templates/lambda-cf-template.yaml \
+--capabilities CAPABILITY_NAMED_IAM
+
+================================================================

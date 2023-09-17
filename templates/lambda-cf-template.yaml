@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: 3M HealthEquip Manager Stack CloudFormation Template
+
+Parameters:
+  DBUsername:
+    Type: String
+    Default: "healthequip_admin"
+    Description: "RDS DB Username"
+  DBPassword:
+    Type: String
+    Default: "healthequip_password"
+    Description: "RDS DB Password"
+  DBName:
+    Type: String
+    Default: "healthequipdb"
+    Description: "RDS DB Name"
+
+Resources:
+  # Define Lambda's IAM Role and Policy to access the RDS database
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "HealthEquipLambdaExecutionRole-${AWS::StackName}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "HealthEquipLambdaExecutionPolicy-${AWS::StackName}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - rds-db:connect
+                Resource:
+                  - !Sub "arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${DBName}/${DBUsername}"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !ImportValue S3BucketArn
+        - PolicyName: !Sub "HealthEquipLambdaVPCAccessExecutionRole-${AWS::StackName}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
+                Resource: "*"
+        
+
+  # Provision the Lambda Function to connect to the RDS
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: HealthEquipLambda
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !ImportValue S3BucketName
+        S3Key: package.zip
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          RDS_DB_HOST: "healthequip-mysql-db.c3rnvnk6hnnj.us-west-2.rds.amazonaws.com" 
+          RDS_DB_USERNAME: !Ref DBUsername
+          RDS_DB_PASSWORD: !Ref DBPassword
+          RDS_DB_NAME: !Ref DBName
+
+Outputs:
+  LambdaFunctionName:
+    Description: "Name of the HealthEquip Lambda function"
+    Value: !Ref LambdaFunction
