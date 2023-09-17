@@ -13,9 +13,9 @@ db_name = os.environ["RDS_DB_NAME"]
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-sql_script = """
+sql_schema_script = """
 -- Create the Equipment table
-CREATE TABLE Equipment (
+CREATE TABLE IF NOT EXISTS Equipment (
     equipId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
@@ -24,14 +24,14 @@ CREATE TABLE Equipment (
 );
 
 -- Create the Location table
-CREATE TABLE Location (
+CREATE TABLE IF NOT EXISTS Location (
     locationId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(255)
 );
 
 -- Create the Status table
-CREATE TABLE Status (
+CREATE TABLE IF NOT EXISTS Status (
     statusID INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     description VARCHAR(255)
@@ -47,13 +47,8 @@ try:
         user=db_username,
         password=db_password,
         db=db_name,
-        charset="utf8mb4",
-        cursorclass=pymysql.cursors.DictCursor,
+        conenct_timeout=5
     )
-    
-    with conn.cursor() as cursor:
-        # Execute the SQL script to create the schema
-        cursor.execute(sql_script)
     
     # Commit the changes
     conn.commit()
@@ -65,4 +60,11 @@ except pymysql.MySQLError as e:
 logger.info("SUCCESS: Connection to RDS MySQL instance established successfully")
 
 def lambda_handler(event, context):
-    pass
+    
+    with conn.cursor() as cursor:
+        # Execute the SQL script to create the schema
+        cursor.execute(sql_schema_script)
+        conn.commit()
+        logger.info("Table Equipment, Location, and Status has been created successfully")
+    
+    return "Function Execution successful"
