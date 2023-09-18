@@ -55,8 +55,8 @@ def lambda_handler(event, context):
             cursor.execute(add_equip_query, (
                 data['name'],
                 data['description'],
-                data['status'],
-                data['location']
+                data['statusId'],
+                data['locationId']
             ))
             conn.commit()
             logger.info(f"New Equipment: {data['name']} added successfully")
