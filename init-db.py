@@ -77,5 +77,11 @@ def lambda_handler(event, context):
         cursor.execute(status_table_sql_script)
         conn.commit()
         logger.info("Table Status has been created successfully")
-    
-    return "Function Execution successful"
+        
+    with conn.cursor() as cursor:
+        cursor.execute("INSERT INTO Equipment (name, description, status, location) VALUES ('Equipment 1', 'Description 1', 'Status 1', 'Location 1');")
+        cursor.execute("INSERT INTO Equipment (name, description, status, location) VALUES ('Equipment 2', 'Description 2', 'Status 2', 'Location 2');")
+        conn.commit()
+        logger.info("Dummy data inserted successfully")
+        
+    return "Initialization and data insertion to DB completed"

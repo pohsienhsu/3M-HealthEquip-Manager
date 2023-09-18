@@ -77,7 +77,7 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          RDS_DB_HOST: !GetAtt RDSDatabaseInstance.Endpoint.Address
+          RDS_DB_HOST: "healthequip-mysql-db.c3rnvnk6hnnj.us-west-2.rds.amazonaws.com"
           RDS_DB_USERNAME: !Ref DBUsername
           RDS_DB_PASSWORD: !Ref DBPassword
           RDS_DB_NAME: !Ref DBName
@@ -96,7 +96,7 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          RDS_DB_HOST: !GetAtt RDSDatabaseInstance.Endpoint.Address
+          RDS_DB_HOST: "healthequip-mysql-db.c3rnvnk6hnnj.us-west-2.rds.amazonaws.com"
           RDS_DB_USERNAME: !Ref DBUsername
           RDS_DB_PASSWORD: !Ref DBPassword
           RDS_DB_NAME: !Ref DBName
@@ -115,7 +115,26 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          RDS_DB_HOST: !GetAtt RDSDatabaseInstance.Endpoint.Address
+          RDS_DB_HOST: "healthequip-mysql-db.c3rnvnk6hnnj.us-west-2.rds.amazonaws.com"
+          RDS_DB_USERNAME: !Ref DBUsername
+          RDS_DB_PASSWORD: !Ref DBPassword
+          RDS_DB_NAME: !Ref DBName
+  
+  # Provision the Lambda Function to initialize the database and insert dummy data
+  LambdaFunctionInitDB:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: HealthEquipLambdaInitDB
+      Handler: init-db.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !ImportValue S3BucketName
+        S3Key: init-db-package.zip
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          RDS_DB_HOST: "healthequip-mysql-db.c3rnvnk6hnnj.us-west-2.rds.amazonaws.com"
           RDS_DB_USERNAME: !Ref DBUsername
           RDS_DB_PASSWORD: !Ref DBPassword
           RDS_DB_NAME: !Ref DBName
@@ -132,7 +151,6 @@ Outputs:
   LambdaFunctionRetrieveInfoName:
     Description: "Name of the Retrieve Info Lambda function"
     Value: !Ref LambdaFunctionRetrieveInfo
-In this modified template, I've added three Lambda functions: LambdaFunctionAddEquipment, LambdaFunctionUpdateStatus, and LambdaFunctionRetrieveInfo, each with its own handler, code, and environment variables. You can use these functions for adding, updating, and retrieving equipment information from the database.
 
 
 
