@@ -37,13 +37,13 @@ logger.info("SUCCESS: Connection to RDS MySQL instance established successfully"
 def lambda_handler(event, context):
     
     equipId = event['equipId']
-    new_status = event['status']
+    new_statusId = event['statusId']
 
     try:
         with conn.cursor() as cursor:
             # Update equipment status in the Equipment table
-            update_query = "UPDATE Equipment SET status = %s WHERE equipId = %s"
-            cursor.execute(update_query, (new_status, equipId))
+            update_query = "UPDATE Equipment SET statusId = %s WHERE equipId = %s"
+            cursor.execute(update_query, (new_statusId, equipId))
             conn.commit()
             logger.info(f"Equipment status updated successfully: Equipment ID {equipId}")
 

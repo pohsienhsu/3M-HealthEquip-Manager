@@ -119,25 +119,6 @@ Resources:
           RDS_DB_USERNAME: !Ref DBUsername
           RDS_DB_PASSWORD: !Ref DBPassword
           RDS_DB_NAME: !Ref DBName
-  
-  # Provision the Lambda Function to initialize the database and insert dummy data
-  LambdaFunctionInitDB:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: HealthEquipLambdaInitDB
-      Handler: init-db.lambda_handler
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Code:
-        S3Bucket: !ImportValue S3BucketName
-        S3Key: init-db-package.zip
-      Runtime: python3.8
-      Timeout: 30
-      Environment:
-        Variables:
-          RDS_DB_HOST: "healthequip-mysql-db.c3rnvnk6hnnj.us-west-2.rds.amazonaws.com"
-          RDS_DB_USERNAME: !Ref DBUsername
-          RDS_DB_PASSWORD: !Ref DBPassword
-          RDS_DB_NAME: !Ref DBName
 
 Outputs:
   LambdaFunctionAddEquipmentName:
@@ -151,7 +132,3 @@ Outputs:
   LambdaFunctionRetrieveInfoName:
     Description: "Name of the Get Equipment Lambda function"
     Value: !Ref LambdaFunctionGetEquipment
-
-  LambdaFunctionInitDB:
-    Description: "Name of the Init DB Lambda function"
-    Value: !Ref LambdaFunctionInitDB

@@ -65,7 +65,7 @@ def lambda_handler(event, context):
             'equipId': equipment_data[0],
             'name': equipment_data[1],
             'description': equipment_data[2],
-            'status': equipment_data[3],
-            'location': equipment_data[4]
+            'statusId': equipment_data[3],
+            'locationId': equipment_data[4]
         }
     }

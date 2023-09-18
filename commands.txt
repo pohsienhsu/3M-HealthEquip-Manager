@@ -37,3 +37,10 @@ aws cloudformation update-stack \
 --capabilities CAPABILITY_NAMED_IAM
 
 ================================================================
+
+# Others
+
+zip add-equipment-package.zip add-equipment.py
+zip update-equipment-package.zip update-equipment.py
+zip get-equipment-package.zip get-equipment.py
+
