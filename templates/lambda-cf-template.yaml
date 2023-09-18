@@ -83,15 +83,15 @@ Resources:
           RDS_DB_NAME: !Ref DBName
 
   # Provision the Lambda Function to update equipment status
-  LambdaFunctionUpdateStatus:
+  LambdaFunctionUpdateEquipment:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: HealthEquipLambdaUpdateStatus
+      FunctionName: HealthEquipLambdaUpdateEquipment
       Handler: update-equipment.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: !ImportValue S3BucketName
-        S3Key: update-status-package.zip
+        S3Key: update-equipment-package.zip
       Runtime: python3.8
       Timeout: 30
       Environment:
@@ -102,10 +102,10 @@ Resources:
           RDS_DB_NAME: !Ref DBName
 
   # Provision the Lambda Function to get equipment information
-  LambdaFunctionRetrieveInfo:
+  LambdaFunctionGetEquipment:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: HealthEquipLambdaRetrieveInfo
+      FunctionName: HealthEquipLambdaGetEquipment
       Handler: get-equipment.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
@@ -145,20 +145,13 @@ Outputs:
     Value: !Ref LambdaFunctionAddEquipment
 
   LambdaFunctionUpdateStatusName:
-    Description: "Name of the Update Status Lambda function"
-    Value: !Ref LambdaFunctionUpdateStatus
+    Description: "Name of the Update Equipment Lambda function"
+    Value: !Ref LambdaFunctionUpdateEquipment
 
   LambdaFunctionRetrieveInfoName:
-    Description: "Name of the Retrieve Info Lambda function"
-    Value: !Ref LambdaFunctionRetrieveInfo
+    Description: "Name of the Get Equipment Lambda function"
+    Value: !Ref LambdaFunctionGetEquipment
 
-
-
-
-
-
-
-Outputs:
-  LambdaFunctionName:
-    Description: "Name of the HealthEquip Lambda function"
-    Value: !Ref LambdaFunction
+  LambdaFunctionInitDB:
+    Description: "Name of the Init DB Lambda function"
+    Value: !Ref LambdaFunctionInitDB
