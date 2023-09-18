@@ -26,23 +26,6 @@ CREATE TABLE IF NOT EXISTS Equipment (
 );
 """
 
-location_table_sql_script = """
-CREATE TABLE IF NOT EXISTS Location (
-    locationId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description VARCHAR(255)
-);
-"""
-
-status_table_sql_script = """
-CREATE TABLE IF NOT EXISTS Status (
-    statusID INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description VARCHAR(255)
-);
-"""
-
-
 # Connect to the RDS MySQL instance
 try:
     conn = pymysql.connect(
@@ -63,19 +46,29 @@ logger.info("SUCCESS: Connection to RDS MySQL instance established successfully"
 
 def lambda_handler(event, context):
     
-    with conn.cursor() as cursor:
-        cursor.execute(equip_table_sql_script)
-        conn.commit()
-        logger.info("Table Equipment has been created successfully")
-        
-    with conn.cursor() as cursor:
-        cursor.execute(location_table_sql_script)
-        conn.commit()
-        logger.info("Table Location has been created successfully")
-        
-    with conn.cursor() as cursor:
-        cursor.execute(status_table_sql_script)
-        conn.commit()
-        logger.info("Table Status has been created successfully")
+    data = event['equipment']
     
-    return "Function Execution successful"
+    with conn.cursor() as cursor:
+        try: 
+            cursor.execute(equip_table_sql_script)
+            add_equip_query = "INSERT INTO Equipment (name, description, status, location) VALUES (%s, %s, %s, %s)"
+            cursor.execute(add_equip_query, (
+                data['name'],
+                data['description'],
+                data['status'],
+                data['location']
+            ))
+            conn.commit()
+            logger.info(f"New Equipment: {data['name']} added successfully")
+        except pymysql.MySQLError as e:
+            logger.error("ERROR: Unable to add new equipment")
+            logger.error(e)
+            return {
+                'statusCode': 500,
+                'body': 'Error adding new equipment'
+            }
+            
+    return {
+        'statusCode': 200,
+        'body': 'New equipment added successfully'
+    }

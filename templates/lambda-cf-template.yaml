@@ -62,26 +62,83 @@ Resources:
                   - ec2:AssignPrivateIpAddresses
                   - ec2:UnassignPrivateIpAddresses
                 Resource: "*"
-        
 
-  # Provision the Lambda Function to connect to the RDS
-  LambdaFunction:
+  # Provision the Lambda Function to add new equipment
+  LambdaFunctionAddEquipment:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: HealthEquipLambda
-      Handler: index.lambda_handler
+      FunctionName: HealthEquipLambdaAddEquipment
+      Handler: add-equipment.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: !ImportValue S3BucketName
-        S3Key: package.zip
+        S3Key: add-equipment-package.zip
       Runtime: python3.8
       Timeout: 30
       Environment:
         Variables:
-          RDS_DB_HOST: "healthequip-mysql-db.c3rnvnk6hnnj.us-west-2.rds.amazonaws.com" 
+          RDS_DB_HOST: !GetAtt RDSDatabaseInstance.Endpoint.Address
           RDS_DB_USERNAME: !Ref DBUsername
           RDS_DB_PASSWORD: !Ref DBPassword
           RDS_DB_NAME: !Ref DBName
+
+  # Provision the Lambda Function to update equipment status
+  LambdaFunctionUpdateStatus:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: HealthEquipLambdaUpdateStatus
+      Handler: update-equipment.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !ImportValue S3BucketName
+        S3Key: update-status-package.zip
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          RDS_DB_HOST: !GetAtt RDSDatabaseInstance.Endpoint.Address
+          RDS_DB_USERNAME: !Ref DBUsername
+          RDS_DB_PASSWORD: !Ref DBPassword
+          RDS_DB_NAME: !Ref DBName
+
+  # Provision the Lambda Function to get equipment information
+  LambdaFunctionRetrieveInfo:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: HealthEquipLambdaRetrieveInfo
+      Handler: get-equipment.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !ImportValue S3BucketName
+        S3Key: get-equipment-package.zip
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          RDS_DB_HOST: !GetAtt RDSDatabaseInstance.Endpoint.Address
+          RDS_DB_USERNAME: !Ref DBUsername
+          RDS_DB_PASSWORD: !Ref DBPassword
+          RDS_DB_NAME: !Ref DBName
+
+Outputs:
+  LambdaFunctionAddEquipmentName:
+    Description: "Name of the Add Equipment Lambda function"
+    Value: !Ref LambdaFunctionAddEquipment
+
+  LambdaFunctionUpdateStatusName:
+    Description: "Name of the Update Status Lambda function"
+    Value: !Ref LambdaFunctionUpdateStatus
+
+  LambdaFunctionRetrieveInfoName:
+    Description: "Name of the Retrieve Info Lambda function"
+    Value: !Ref LambdaFunctionRetrieveInfo
+In this modified template, I've added three Lambda functions: LambdaFunctionAddEquipment, LambdaFunctionUpdateStatus, and LambdaFunctionRetrieveInfo, each with its own handler, code, and environment variables. You can use these functions for adding, updating, and retrieving equipment information from the database.
+
+
+
+
+
+
 
 Outputs:
   LambdaFunctionName:
