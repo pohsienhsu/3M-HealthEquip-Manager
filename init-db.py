@@ -3,6 +3,9 @@ import os
 import logging
 import sys
 
+# import dotenv
+# dotenv.load_dotenv()
+
 # RDS MySQL Configurations
 db_host = os.environ["RDS_DB_HOST"]
 db_username = os.environ["RDS_DB_USERNAME"]
@@ -13,8 +16,7 @@ db_name = os.environ["RDS_DB_NAME"]
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-sql_schema_script = """
--- Create the Equipment table
+equip_table_sql_script = """
 CREATE TABLE IF NOT EXISTS Equipment (
     equipId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -22,23 +24,24 @@ CREATE TABLE IF NOT EXISTS Equipment (
     status VARCHAR(50),
     location VARCHAR(100)
 );
+"""
 
--- Create the Location table
+location_table_sql_script = """
 CREATE TABLE IF NOT EXISTS Location (
     locationId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(255)
 );
+"""
 
--- Create the Status table
+status_table_sql_script = """
 CREATE TABLE IF NOT EXISTS Status (
     statusID INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     description VARCHAR(255)
 );
-
--- Add any additional tables or constraints as needed
 """
+
 
 # Connect to the RDS MySQL instance
 try:
@@ -46,8 +49,7 @@ try:
         host=db_host,
         user=db_username,
         password=db_password,
-        db=db_name,
-        conenct_timeout=5
+        db=db_name
     )
     
     # Commit the changes
@@ -62,9 +64,24 @@ logger.info("SUCCESS: Connection to RDS MySQL instance established successfully"
 def lambda_handler(event, context):
     
     with conn.cursor() as cursor:
-        # Execute the SQL script to create the schema
-        cursor.execute(sql_schema_script)
+        cursor.execute(equip_table_sql_script)
         conn.commit()
-        logger.info("Table Equipment, Location, and Status has been created successfully")
-    
-    return "Function Execution successful"
+        logger.info("Table Equipment has been created successfully")
+        
+    with conn.cursor() as cursor:
+        cursor.execute(location_table_sql_script)
+        conn.commit()
+        logger.info("Table Location has been created successfully")
+        
+    with conn.cursor() as cursor:
+        cursor.execute(status_table_sql_script)
+        conn.commit()
+        logger.info("Table Status has been created successfully")
+        
+    with conn.cursor() as cursor:
+        cursor.execute("INSERT INTO Equipment (name, description, status, location) VALUES ('Equipment 1', 'Description 1', 'Status 1', 'Location 1');")
+        cursor.execute("INSERT INTO Equipment (name, description, status, location) VALUES ('Equipment 2', 'Description 2', 'Status 2', 'Location 2');")
+        conn.commit()
+        logger.info("Dummy data inserted successfully")
+        
+    return "Initialization and data insertion to DB completed"
